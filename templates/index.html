@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rice Type Classifier</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #f0f9ff, #e0f7fa);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .container {
+        background-color: #ffffff;
+        padding: 40px 30px;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 520px;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      h1 {
+        font-size: 26px;
+        color: #00796b;
+        margin-bottom: 20px;
+      }
+
+      p {
+        color: #555;
+        margin-bottom: 24px;
+        font-size: 16px;
+      }
+
+      form {
+        margin-top: 20px;
+      }
+
+      .custom-file-upload {
+        display: inline-block;
+        padding: 12px 25px;
+        cursor: pointer;
+        background-color: #00796b;
+        color: white;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: background-color 0.3s ease;
+        margin-bottom: 20px;
+      }
+
+      .custom-file-upload:hover {
+        background-color: #004d40;
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+
+      #file-name {
+        margin-top: 8px;
+        font-size: 14px;
+        color: #333;
+      }
+
+      input[type="submit"] {
+        background-color: #00897b;
+        color: white;
+        padding: 12px 28px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      input[type="submit"]:hover {
+        background-color: #00695c;
+      }
+
+      .prediction {
+        margin-top: 25px;
+        background-color: #e0f2f1;
+        padding: 20px;
+        border-radius: 12px;
+        font-size: 17px;
+        color: #004d40;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      img {
+        margin-top: 25px;
+        max-width: 100%;
+        border-radius: 14px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .error {
+        color: #d32f2f;
+        margin-top: 20px;
+        font-weight: 500;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 25px 20px;
+        }
+
+        h1 {
+          font-size: 22px;
+        }
+
+        .custom-file-upload,
+        input[type="submit"] {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🍚 Rice Type Classifier</h1>
+      <p style="color: #555; margin-bottom: 24px; font-size: 16px">
+        Upload a rice grain image to identify its variety using AI.
+      </p>
+      <form method="POST" enctype="multipart/form-data" id="upload-form">
+        <label for="file-upload" class="custom-file-upload" id="file-label">
+          <span
+            id="upload-icon"
+            style="font-size: 20px; vertical-align: middle; margin-right: 8px"
+            >📷</span
+          >
+          <span id="label-text">Choose Image</span>
+        </label>
+        <input
+          id="file-upload"
+          type="file"
+          name="file"
+          accept="image/*"
+          required
+        />
+        <div id="file-name">No file selected</div>
+        <div id="preview-container" style="display: none; margin-top: 16px">
+          <img
+            id="preview-image"
+            src="#"
+            alt="Preview"
+            style="
+              max-width: 180px;
+              border-radius: 10px;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            "
+          />
+        </div>
+        <br />
+        <input type="submit" value="Predict" />
+      </form>
+
+      {% if filename %}
+      <h3>Uploaded Image:</h3>
+      <img src="{{ url_for('static', filename='uploads/' + filename) }}" />
+      <div class="prediction">
+        <strong>Prediction:</strong> {{ prediction }}<br />
+        <strong>Confidence:</strong> {{ confidence }}
+      </div>
+      {% endif %} {% if error %}
+      <div class="error">{{ error }}</div>
+      {% endif %}
+    </div>
+
+    <script>
+      const fileInput = document.getElementById("file-upload");
+      const fileLabel = document.getElementById("file-label");
+      const fileNameDisplay = document.getElementById("file-name");
+      const labelText = document.getElementById("label-text");
+      const previewContainer = document.getElementById("preview-container");
+      const previewImage = document.getElementById("preview-image");
+
+      fileInput.addEventListener("change", function () {
+        if (fileInput.files.length > 0) {
+          const fileName = fileInput.files[0].name;
+          fileNameDisplay.textContent = `Selected: ${fileName}`;
+          labelText.textContent = "Change Image";
+          // Show preview
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            previewImage.src = e.target.result;
+            previewContainer.style.display = "block";
+          };
+          reader.readAsDataURL(fileInput.files[0]);
+        } else {
+          fileNameDisplay.textContent = "No file selected";
+          labelText.textContent = "Choose Image";
+          previewContainer.style.display = "none";
+        }
+      });
+    </script>
+  </body>
+</html>
